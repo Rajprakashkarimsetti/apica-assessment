@@ -22,8 +22,8 @@ func (c store) Get(key string) string {
 	defer c.cache.Mutex.Unlock()
 
 	if elem, ok := c.cache.Cache[key]; ok {
-		c.cache.LruList.MoveToFront(elem)
-		return elem.Value.(*models.CacheData).Value
+		c.cache.MoveToFront(elem)
+		return elem.Value
 	}
 
 	return ""
@@ -36,18 +36,31 @@ func (c store) Set(key string, value string) {
 	defer c.cache.Mutex.Unlock()
 
 	if elem, ok := c.cache.Cache[key]; ok {
-		elem.Value.(*models.CacheData).Value = value
-		c.cache.LruList.MoveToFront(elem)
+		elem.Value = value
+		c.cache.MoveToFront(elem)
 	}
 
 	if len(c.cache.Cache) >= c.cache.Capacity {
-		back := c.cache.LruList.Back()
-		if back != nil {
-			delete(c.cache.Cache, back.Value.(*models.CacheData).Key)
-			c.cache.LruList.Remove(back)
-		}
+		delete(c.cache.Cache, c.cache.Tail.Key)
+		c.cache.RemoveTail()
+
 	}
 
-	elem := c.cache.LruList.PushFront(&models.CacheData{Key: key, Value: value, Timestamp: time.Now()})
-	c.cache.Cache[key] = elem
+	newEntry := &models.CacheData{
+		Key:       key,
+		Value:     value,
+		Timestamp: time.Now(),
+		Next:      c.cache.Head,
+	}
+
+	if c.cache.Head != nil {
+		c.cache.Head.Prev = newEntry
+	}
+
+	c.cache.Head = newEntry
+	if c.cache.Tail == nil {
+		c.cache.Tail = newEntry
+	}
+
+	c.cache.Cache[key] = newEntry
 }

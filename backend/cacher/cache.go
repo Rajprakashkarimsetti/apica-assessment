@@ -1,7 +1,6 @@
 package cacher
 
 import (
-	"container/list"
 	"sync"
 	"time"
 
@@ -10,8 +9,9 @@ import (
 
 type Cache struct {
 	Capacity int
-	Cache    map[string]*list.Element
-	LruList  *list.List
+	Cache    map[string]*models.CacheData
+	Head     *models.CacheData
+	Tail     *models.CacheData
 	Mutex    sync.Mutex
 }
 
@@ -20,8 +20,7 @@ type Cache struct {
 func NewCache(capacity int) *Cache {
 	cache := &Cache{
 		Capacity: capacity,
-		Cache:    make(map[string]*list.Element),
-		LruList:  list.New(),
+		Cache:    make(map[string]*models.CacheData),
 	}
 
 	go cache.startExpirationCheck()
@@ -36,14 +35,55 @@ func (c *Cache) startExpirationCheck() {
 
 	for range ticker.C {
 		c.Mutex.Lock()
-		for key, elem := range c.Cache {
-			entry := elem.Value.(*models.CacheData)
-			if time.Since(entry.Timestamp) > 5*time.Second {
-				delete(c.Cache, key)
-				c.LruList.Remove(elem)
+
+		curr := c.Head
+		for curr != nil {
+			next := curr.Next
+			if time.Since(curr.Timestamp) > 5*time.Second {
+				delete(c.Cache, curr.Key)
+				c.RemoveTail()
 			}
+
+			curr = next
 		}
 
 		c.Mutex.Unlock()
 	}
+}
+
+func (c *Cache) MoveToFront(entry *models.CacheData) {
+	if entry == c.Head {
+		return
+	}
+
+	if entry == c.Tail {
+		c.Tail = entry.Prev
+	}
+
+	if entry.Prev != nil {
+		entry.Prev.Next = entry.Next
+	}
+
+	if entry.Next != nil {
+		entry.Next.Prev = entry.Prev
+	}
+
+	entry.Prev = nil
+	entry.Next = c.Head
+	c.Head.Prev = entry
+	c.Head = entry
+}
+
+func (c *Cache) RemoveTail() {
+	if c.Tail == nil {
+		return
+	}
+
+	prev := c.Tail.Prev
+	if prev != nil {
+		prev.Next = nil
+	} else {
+		c.Head = nil
+	}
+	c.Tail = prev
 }

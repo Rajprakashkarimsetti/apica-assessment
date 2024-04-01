@@ -38,7 +38,7 @@ func (h handler) Get(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 
-	json.NewEncoder(w).Encode(value)
+	json.NewEncoder(w).Encode(models.Success{Data: value})
 }
 
 // Set handles HTTP POST/PUT requests to set a key-value pair. It responds with success or error messages based on the request body validity.
@@ -75,5 +75,5 @@ func (h handler) Set(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 
-	json.NewEncoder(w).Encode("Successfully inserted")
+	json.NewEncoder(w).Encode(models.Success{Data: "Successfully inserted"})
 }

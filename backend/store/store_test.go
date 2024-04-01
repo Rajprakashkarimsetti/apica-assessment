@@ -1,7 +1,6 @@
 package store
 
 import (
-	"container/list"
 	"sync"
 	"testing"
 	"time"
@@ -25,15 +24,19 @@ func Test_Get(t *testing.T) {
 			output: "value1",
 			cache: &cacher.Cache{
 				Capacity: 1024,
-				Cache: map[string]*list.Element{
-					"key1": {Value: &models.CacheData{
+				Cache: map[string]*models.CacheData{
+					"key1": {
 						Key:       "key1",
 						Value:     "value1",
 						Timestamp: time.Now(),
-					}},
+					},
 				},
-				LruList: &list.List{},
-				Mutex:   sync.Mutex{},
+				Head: &models.CacheData{
+					Key:       "key2",
+					Value:     "value2",
+					Timestamp: time.Now(),
+				},
+				Mutex: sync.Mutex{},
 			},
 		},
 
@@ -43,15 +46,14 @@ func Test_Get(t *testing.T) {
 			output: "",
 			cache: &cacher.Cache{
 				Capacity: 1024,
-				Cache: map[string]*list.Element{
-					"key1": {Value: &models.CacheData{
+				Cache: map[string]*models.CacheData{
+					"key1": {
 						Key:       "key1",
 						Value:     "value1",
 						Timestamp: time.Now(),
-					}},
+					},
 				},
-				LruList: &list.List{},
-				Mutex:   sync.Mutex{},
+				Mutex: sync.Mutex{},
 			},
 		},
 	}
@@ -66,9 +68,6 @@ func Test_Get(t *testing.T) {
 }
 
 func Test_Set(t *testing.T) {
-	l := list.List{}
-	l.PushFront(&models.CacheData{Key: "key1", Value: "value1", Timestamp: time.Now()})
-
 	testcases := []struct {
 		desc  string
 		key   string
@@ -81,8 +80,7 @@ func Test_Set(t *testing.T) {
 			value: "value1",
 			cache: &cacher.Cache{
 				Capacity: 1024,
-				Cache:    map[string]*list.Element{},
-				LruList:  &list.List{},
+				Cache:    map[string]*models.CacheData{},
 				Mutex:    sync.Mutex{},
 			},
 		},
@@ -93,15 +91,19 @@ func Test_Set(t *testing.T) {
 			value: "value2",
 			cache: &cacher.Cache{
 				Capacity: 1024,
-				Cache: map[string]*list.Element{
-					"key1": {Value: &models.CacheData{
+				Cache: map[string]*models.CacheData{
+					"key1": {
 						Key:       "key1",
 						Value:     "value1",
 						Timestamp: time.Now(),
-					}},
+					},
 				},
-				LruList: &list.List{},
-				Mutex:   sync.Mutex{},
+				Head: &models.CacheData{
+					Key:       "key1",
+					Value:     "value2",
+					Timestamp: time.Now(),
+				},
+				Mutex: sync.Mutex{},
 			},
 		},
 
@@ -111,15 +113,19 @@ func Test_Set(t *testing.T) {
 			value: "value3",
 			cache: &cacher.Cache{
 				Capacity: 1,
-				Cache: map[string]*list.Element{
-					"key1": {Value: &models.CacheData{
+				Cache: map[string]*models.CacheData{
+					"key1": {
 						Key:       "key1",
 						Value:     "value1",
 						Timestamp: time.Now(),
-					}},
+					},
 				},
-				LruList: &l,
-				Mutex:   sync.Mutex{},
+				Tail: &models.CacheData{
+					Key:       "key2",
+					Value:     "value2",
+					Timestamp: time.Now(),
+				},
+				Mutex: sync.Mutex{},
 			},
 		},
 	}

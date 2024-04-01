@@ -89,11 +89,10 @@ func Test_Get(t *testing.T) {
 
 				assert.Equalf(t, tc.err.Error(), e.Error(), "Test[%d] failed", i)
 			} else {
-				var res string
+				var resp models.Success
+				json.Unmarshal(b, &resp)
 
-				json.Unmarshal(b, &res)
-
-				assert.Equalf(t, tc.output, res, "Test[%d] failed", i)
+				assert.Equalf(t, tc.output, resp.Data, "Test[%d] failed", i)
 			}
 		})
 	}
@@ -169,11 +168,11 @@ func Test_Set(t *testing.T) {
 
 				assert.Equalf(t, tc.err.Error(), e.Error(), "Test[%d] failed", i)
 			} else {
-				var res string
+				var res models.Success
 
 				json.Unmarshal(b, &res)
 
-				assert.Equalf(t, tc.output, res, "Test[%d] failed", i)
+				assert.Equalf(t, tc.output, res.Data, "Test[%d] failed", i)
 			}
 		})
 	}

@@ -96,7 +96,7 @@ const Header = () => {
       <div className="header-response">
         {isLoading && <div>Loading...</div>}
         {error && <div>Error: {error}</div>}
-        {response && <div> {JSON.stringify(response)}</div>}
+        {response && <div> {JSON.stringify(response.data)}</div>}
       </div>
     </div>
   );

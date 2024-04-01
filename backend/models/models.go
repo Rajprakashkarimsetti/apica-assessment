@@ -16,6 +16,8 @@ type CacheData struct {
 	Key       string `json:"key"`
 	Value     string `json:"value"`
 	Timestamp time.Time
+	Prev      *CacheData
+	Next      *CacheData
 }
 
 type Success struct {
