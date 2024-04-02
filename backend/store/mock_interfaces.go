@@ -7,6 +7,7 @@ package store
 import (
 	reflect "reflect"
 
+	models "github.com/Rajprakashkarimsetti/apica-project/models"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -48,13 +49,13 @@ func (mr *MockLruCacherMockRecorder) Get(key interface{}) *gomock.Call {
 }
 
 // Set mocks base method.
-func (m *MockLruCacher) Set(key, val string) {
+func (m *MockLruCacher) Set(cache *models.CacheData) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Set", key, val)
+	m.ctrl.Call(m, "Set", cache)
 }
 
 // Set indicates an expected call of Set.
-func (mr *MockLruCacherMockRecorder) Set(key, val interface{}) *gomock.Call {
+func (mr *MockLruCacherMockRecorder) Set(cache interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Set", reflect.TypeOf((*MockLruCacher)(nil).Set), key, val)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Set", reflect.TypeOf((*MockLruCacher)(nil).Set), cache)
 }

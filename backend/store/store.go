@@ -31,12 +31,12 @@ func (c store) Get(key string) string {
 
 // Set stores the key-value pair in the cache, updating the value if the key already exists.
 // It also maintains the LRU list by moving accessed elements to the front and removing the least recently used element when the cache exceeds its capacity.
-func (c store) Set(key string, value string) {
+func (c store) Set(cache *models.CacheData) {
 	c.cache.Mutex.Lock()
 	defer c.cache.Mutex.Unlock()
 
-	if elem, ok := c.cache.Cache[key]; ok {
-		elem.Value = value
+	if elem, ok := c.cache.Cache[cache.Key]; ok {
+		elem.Value = cache.Value
 		c.cache.MoveToFront(elem)
 	}
 
@@ -47,10 +47,11 @@ func (c store) Set(key string, value string) {
 	}
 
 	newEntry := &models.CacheData{
-		Key:       key,
-		Value:     value,
-		Timestamp: time.Now(),
-		Next:      c.cache.Head,
+		Key:        cache.Key,
+		Value:      cache.Value,
+		Expiration: cache.Expiration,
+		TimeStamp:  time.Now(),
+		Next:       c.cache.Head,
 	}
 
 	if c.cache.Head != nil {
@@ -62,5 +63,5 @@ func (c store) Set(key string, value string) {
 		c.cache.Tail = newEntry
 	}
 
-	c.cache.Cache[key] = newEntry
+	c.cache.Cache[cache.Key] = newEntry
 }

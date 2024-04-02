@@ -39,7 +39,8 @@ func (c *Cache) startExpirationCheck() {
 		curr := c.Head
 		for curr != nil {
 			next := curr.Next
-			if time.Since(curr.Timestamp) > 5*time.Second {
+			expirationTime := time.Duration(curr.Expiration) * time.Second
+			if time.Since(curr.TimeStamp) > expirationTime {
 				delete(c.Cache, curr.Key)
 				c.RemoveTail()
 			}

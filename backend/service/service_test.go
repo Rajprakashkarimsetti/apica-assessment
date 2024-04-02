@@ -6,6 +6,7 @@ import (
 	"github.com/bmizerany/assert"
 	"github.com/golang/mock/gomock"
 
+	"github.com/Rajprakashkarimsetti/apica-project/models"
 	"github.com/Rajprakashkarimsetti/apica-project/store"
 )
 
@@ -48,19 +49,23 @@ func Test_Set(t *testing.T) {
 
 	testcases := []struct {
 		desc  string
-		key   string
-		value string
+		input *models.CacheData
 		mock  *gomock.Call
 	}{
 		{
-			desc:  "success",
-			key:   "key1",
-			value: "value1",
-			mock:  mockLruCacherStr.EXPECT().Set("key1", "value1"),
+			desc: "success",
+			input: &models.CacheData{Key: "key1",
+				Value:      "value1",
+				Expiration: 5,
+			},
+			mock: mockLruCacherStr.EXPECT().Set(&models.CacheData{Key: "key1",
+				Value:      "value1",
+				Expiration: 5,
+			}),
 		},
 	}
 
 	for _, tc := range testcases {
-		mockLruCacherSvc.Set(tc.key, tc.value)
+		mockLruCacherSvc.Set(tc.input)
 	}
 }

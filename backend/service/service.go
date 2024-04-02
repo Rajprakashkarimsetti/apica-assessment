@@ -1,6 +1,9 @@
 package service
 
-import "github.com/Rajprakashkarimsetti/apica-project/store"
+import (
+	"github.com/Rajprakashkarimsetti/apica-project/models"
+	"github.com/Rajprakashkarimsetti/apica-project/store"
+)
 
 type Service struct {
 	lruCacherStore store.LruCacher
@@ -16,6 +19,6 @@ func (s Service) Get(key string) string {
 }
 
 // Set stores the key-value pair in the store's LRU cache.
-func (s Service) Set(key, val string) {
-	s.lruCacherStore.Set(key, val)
+func (s Service) Set(cache *models.CacheData) {
+	s.lruCacherStore.Set(cache)
 }

@@ -13,11 +13,12 @@ type Error struct {
 }
 
 type CacheData struct {
-	Key       string `json:"key"`
-	Value     string `json:"value"`
-	Timestamp time.Time
-	Prev      *CacheData
-	Next      *CacheData
+	Key        string `json:"key"`
+	Value      string `json:"value"`
+	Expiration int64  `json:"expiration"`
+	TimeStamp  time.Time
+	Prev       *CacheData
+	Next       *CacheData
 }
 
 type Success struct {

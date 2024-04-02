@@ -71,7 +71,13 @@ func (h handler) Set(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.s.Set(reqData.Key, reqData.Value)
+	if reqData.Expiration == 0 {
+		models.SetError(w, http.StatusBadRequest, "time is required")
+
+		return
+	}
+
+	h.s.Set(&reqData)
 
 	w.WriteHeader(http.StatusOK)
 

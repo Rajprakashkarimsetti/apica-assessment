@@ -110,9 +110,9 @@ func Test_Set(t *testing.T) {
 	}{
 		{
 			desc:   "success",
-			input:  []byte(`{"key":"key1","value":"value1"}`),
+			input:  []byte(`{"key":"key1","value":"value1","expiration":5}`),
 			output: "Successfully inserted",
-			mock:   mockLruCacher.EXPECT().Set("key1", "value1"),
+			mock:   mockLruCacher.EXPECT().Set(&models.CacheData{Key: "key1", Value: "value1", Expiration: 5}),
 			err:    nil,
 		},
 

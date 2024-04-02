@@ -26,15 +26,17 @@ func Test_Get(t *testing.T) {
 				Capacity: 1024,
 				Cache: map[string]*models.CacheData{
 					"key1": {
-						Key:       "key1",
-						Value:     "value1",
-						Timestamp: time.Now(),
+						Key:        "key1",
+						Value:      "value1",
+						Expiration: 5,
+						TimeStamp:  time.Now(),
 					},
 				},
 				Head: &models.CacheData{
-					Key:       "key2",
-					Value:     "value2",
-					Timestamp: time.Now(),
+					Key:        "key2",
+					Value:      "value2",
+					Expiration: 5,
+					TimeStamp:  time.Now(),
 				},
 				Mutex: sync.Mutex{},
 			},
@@ -48,10 +50,10 @@ func Test_Get(t *testing.T) {
 				Capacity: 1024,
 				Cache: map[string]*models.CacheData{
 					"key1": {
-						Key:       "key1",
-						Value:     "value1",
-						Timestamp: time.Now(),
-					},
+						Key:        "key1",
+						Value:      "value1",
+						Expiration: 5,
+						TimeStamp:  time.Now()},
 				},
 				Mutex: sync.Mutex{},
 			},
@@ -70,14 +72,15 @@ func Test_Get(t *testing.T) {
 func Test_Set(t *testing.T) {
 	testcases := []struct {
 		desc  string
-		key   string
-		value string
+		input *models.CacheData
 		cache *cacher.Cache
 	}{
 		{
-			desc:  "successfully inserted into cache",
-			key:   "key1",
-			value: "value1",
+			desc: "successfully inserted into cache",
+			input: &models.CacheData{Key: "key1",
+				Value:      "value1",
+				Expiration: 5,
+			},
 			cache: &cacher.Cache{
 				Capacity: 1024,
 				Cache:    map[string]*models.CacheData{},
@@ -86,45 +89,49 @@ func Test_Set(t *testing.T) {
 		},
 
 		{
-			desc:  "success, key already exists, updating the value",
-			key:   "key1",
-			value: "value2",
+			desc: "success, key already exists, updating the value",
+			input: &models.CacheData{Key: "key1",
+				Value:      "value2",
+				Expiration: 5,
+			},
 			cache: &cacher.Cache{
 				Capacity: 1024,
 				Cache: map[string]*models.CacheData{
 					"key1": {
-						Key:       "key1",
-						Value:     "value1",
-						Timestamp: time.Now(),
-					},
+						Key:        "key1",
+						Value:      "value1",
+						Expiration: 5,
+						TimeStamp:  time.Now()},
 				},
 				Head: &models.CacheData{
-					Key:       "key1",
-					Value:     "value2",
-					Timestamp: time.Now(),
-				},
+					Key:        "key1",
+					Value:      "value2",
+					Expiration: 5,
+					TimeStamp:  time.Now()},
 				Mutex: sync.Mutex{},
 			},
 		},
 
 		{
-			desc:  "cache capacity exceeded, removes the last element and inserts new to front",
-			key:   "key3",
-			value: "value3",
+			desc: "cache capacity exceeded, removes the last element and inserts new to front",
+			input: &models.CacheData{Key: "key3",
+				Value:      "value3",
+				Expiration: 5,
+			},
 			cache: &cacher.Cache{
 				Capacity: 1,
 				Cache: map[string]*models.CacheData{
 					"key1": {
-						Key:       "key1",
-						Value:     "value1",
-						Timestamp: time.Now(),
-					},
+						Key:        "key1",
+						Value:      "value1",
+						Expiration: 5,
+						TimeStamp:  time.Now()},
 				},
 				Tail: &models.CacheData{
-					Key:       "key2",
-					Value:     "value2",
-					Timestamp: time.Now(),
-				},
+					Key:        "key2",
+					Value:      "value2",
+					Expiration: 5,
+					TimeStamp:  time.Now()},
 				Mutex: sync.Mutex{},
 			},
 		},
@@ -134,10 +141,10 @@ func Test_Set(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			mockLruCacherStr := New(tc.cache)
 
-			mockLruCacherStr.Set(tc.key, tc.value)
+			mockLruCacherStr.Set(tc.input)
 
-			if _, ok := tc.cache.Cache[tc.key]; !ok {
-				assert.Equal(t, tc.key, "", "Test failed")
+			if _, ok := tc.cache.Cache[tc.input.Key]; !ok {
+				assert.Equal(t, tc.input.Key, "", "Test failed")
 			}
 		})
 	}
